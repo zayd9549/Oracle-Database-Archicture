@@ -146,11 +146,175 @@ If your `DB_BLOCK_SIZE` is 8K, each data block can store approx:
 * Fewer rows if rows are wide (many columns or large data types)
 
 ---
+Sure! Here's the detailed explanation for **Segment**, followed by **Tablespace**:
+
+---
+
+## ✅ **2. Oracle Segment**
+
+#### 🔍 **Definition:**
+
+A **Segment** is a set of contiguous Oracle database blocks that are allocated for a specific database object. Each segment stores data for a specific structure like a table, index, or rollback.
+
+---
+
+#### 🔸 **Purpose:**
+
+* A segment is responsible for **storing all the data** associated with a database object (e.g., rows of a table, index entries).
+* A **logical storage unit** that groups database blocks for a specific object.
+
+---
+
+#### 🔸 **Types of Segments:**
+
+1. **Table Segment**: Stores all the rows for a specific table.
+2. **Index Segment**: Stores all the entries of an index.
+3. **Undo Segment**: Stores undo information to maintain transaction consistency.
+4. **Temporary Segment**: Used for storing intermediate data during complex operations (e.g., sorting, joins).
+5. **Rollback Segment**: Used for transaction rollbacks and maintaining consistency.
+
+---
+
+#### 🔸 **Details:**
+
+* **Extent Allocation**: Segments are made up of extents, and extents are made up of blocks.
+* **Extent Growth**: When a segment needs more space, it acquires additional extents.
+* **Segment Header**: Contains metadata, such as the number of extents allocated and segment's status.
+
+---
+
+#### 🔸 **Segment Components:**
+
+| Component          | Description                                                   |
+| ------------------ | ------------------------------------------------------------- |
+| **Segment Header** | Stores the segment’s metadata (allocated extents, status)     |
+| **Data Blocks**    | Stores the actual data (rows for tables, entries for indexes) |
+| **Freelist**       | Tracks free space within the segment for efficient allocation |
+
+---
+
+#### 🔸 **Optimizations:**
+
+* **Locally Managed Tablespaces (LMTs)** use **Automatic Segment Space Management (ASSM)**, which helps manage the space within segments more efficiently.
+* Segments can be **shrinked** or **migrated** based on data movement and optimization needs.
+
+---
+
+#### 🧠 **Real-World Analogy:**
+
+A **segment** is like a **chapter** in a book:
+
+* The chapter is made up of several pages (blocks).
+* All the content for a specific topic (e.g., table data) is within this chapter.
+* A chapter may grow or shrink, but it remains dedicated to a specific topic.
+
+---
+
+#### 🔸 **Example:**
+
+* A table with 1000 rows may initially use one segment.
+* If the table grows and needs more space, Oracle will allocate more extents to the segment until it grows to the required size.
+
+---
+
+Great! Here's the detailed explanation for **Tablespace**:
+
+---
+
+## ✅ **3. Oracle Tablespace**
+
+#### 🔍 **Definition:**
+
+A **Tablespace** is a logical storage container in an Oracle Database that groups related logical structures, such as segments, for physical storage management.
+
+---
+
+#### 🔸 **Purpose:**
+
+* A **tablespace** defines how data is physically stored in the database.
+* It is a **container** for storing segments and helps in managing storage allocation across the database.
+
+---
+
+#### 🔸 **Details:**
+
+* A tablespace is mapped to **one or more physical data files** on disk.
+* Each tablespace contains **segments**, and each segment is made up of **extents**.
+* It acts as an abstraction layer between the physical storage (data files) and the logical database structures (tables, indexes).
+
+---
+
+#### 🔸 **Types of Tablespaces:**
+
+1. **Permanent Tablespaces**:
+
+   * Stores permanent user data (e.g., tables, indexes).
+   * Can be **system**, **undo**, **temp**, or **users** tablespaces.
+2. **Temporary Tablespaces**:
+
+   * Used for sorting, joining, and temporary data processing.
+   * Do not store permanent user data.
+3. **Undo Tablespaces**:
+
+   * Stores undo information (used for transaction rollbacks).
+4. **System Tablespace**:
+
+   * Contains Oracle's system objects, including data dictionary tables.
+
+---
+
+#### 🔸 **Tablespace Components:**
+
+| Component     | Description                                                           |
+| ------------- | --------------------------------------------------------------------- |
+| **Datafiles** | Physical files on disk that store the actual data for the tablespace  |
+| **Segments**  | Logical storage units (e.g., tables, indexes) within the tablespace   |
+| **Extents**   | Groups of contiguous blocks within a segment, allocated to store data |
+| **Blocks**    | Smallest unit of storage (actual rows of data) stored within extents  |
+
+---
+
+#### 🔸 **Tablespace Management:**
+
+1. **Dictionary-Managed Tablespaces (DMT)**:
+
+   * Space management is handled through the data dictionary.
+2. **Locally Managed Tablespaces (LMT)**:
+
+   * Space management is handled using bitmaps stored within the tablespace, offering better performance.
+
+---
+
+#### 🔸 **Tablespace Features:**
+
+* **Autoextend**: Tablespace data files can be set to automatically extend when space is required.
+* **Quota**: User quotas can be set on tablespaces, limiting the amount of space each user can use.
+* **Offline/Online**: Tablespaces can be taken offline for maintenance or storage reorganization and brought online afterward.
+
+---
+
+#### 🧠 **Real-World Analogy:**
+
+A **tablespace** is like a **filing cabinet**:
+
+* The cabinet holds multiple **drawers** (segments).
+* Each drawer is assigned a label (e.g., for tables or indexes) and holds **files** (data blocks).
+* The cabinet organizes all your files in a structured way, making it easy to locate and manage data.
+
+---
+
+#### 🔸 **Example:**
+
+* A **users** tablespace might contain all user tables and indexes, while a **temp** tablespace is used to handle intermediate data during complex queries.
+* A tablespace like **undo** will store all transaction-related data for rollback, while **system** stores Oracle's internal data dictionary.
+
+---
 
 ## 🔷 **Oracle Database Server Architecture**
 
 ---
-![image](https://github.com/user-attachments/assets/f69642ba-b18b-4e34-b128-3f8ff8d95daf)
+
+![image](https://github.com/user-attachments/assets/2ce8a270-d306-4d64-9fd6-854d314d858e)
 
 
 ### 🗄 **PHYSICAL STRUCTURE**
