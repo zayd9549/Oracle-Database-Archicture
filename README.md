@@ -77,6 +77,8 @@ Here's the **enhanced and expanded version** of the **Oracle Database Server Arc
 ## 🔷 **Oracle Database Server Architecture**
 
 ---
+![image](https://github.com/user-attachments/assets/f69642ba-b18b-4e34-b128-3f8ff8d95daf)
+
 
 ### 🗄 **PHYSICAL STRUCTURE**
 
