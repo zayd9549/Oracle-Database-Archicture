@@ -1,23 +1,12 @@
-**Oracle Database Architecture**
-
-This documentation presents an in-depth yet simplified explanation of Oracle Database architecture, excluding Container and Pluggable Database concepts.
-
----
-
-## 1. **Oracle Database Architecture Overview**
-
-![image](https://github.com/user-attachments/assets/3f938073-6ac2-46a9-9c00-f0dcc9385c7f)
-
-
-
-Here is the **Oracle Database Server Architecture** explanation in simple language using **GitHub Markdown** format:
-
----
-
 ## 1. Oracle Database Server Architecture
 
 * The architecture includes **physical components** (actual files on disk) and **logical components** (instance running in memory).
 * It ensures data storage, processing, and access.
+---
+
+##  **Oracle Database Architecture Overview**
+
+![image](https://github.com/user-attachments/assets/3f938073-6ac2-46a9-9c00-f0dcc9385c7f)
 
 ---
 
