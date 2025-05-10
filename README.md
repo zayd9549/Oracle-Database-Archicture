@@ -1,4 +1,4 @@
-**Oracle Database Architecture 
+**Oracle Database Architecture**
 
 This documentation presents an in-depth yet simplified explanation of Oracle Database architecture, excluding Container and Pluggable Database concepts.
 
