@@ -313,7 +313,7 @@ These components reside on **disk** and are **persistent**, meaning they exist e
 
 ---
 
-### **1. Datafiles**
+## ✅ **1. Datafiles**
 
 📘 **Definition**:
 *Datafiles are the physical files on disk that store all user and system data in an Oracle database. They hold tables, indexes, LOBs, and internal objects like undo and data dictionary information.*
@@ -339,7 +339,7 @@ These components reside on **disk** and are **persistent**, meaning they exist e
 * `users01.dbf`
 * `undotbs01.dbf`
 
-🔍 **Useful View**:
+🔍 **Query Example**:
 
 ```sql
 SELECT file_name, tablespace_name, autoextensible FROM dba_data_files;
@@ -347,7 +347,7 @@ SELECT file_name, tablespace_name, autoextensible FROM dba_data_files;
 
 ---
 
-### **2. Online Redolog Files**
+## ✅ **2. Online Redolog Files**
 
 📘 **Definition**:
 *Online redo logs are files that record all changes made to the database as they happen. They are crucial for crash recovery and instance recovery.*
@@ -377,7 +377,7 @@ SELECT file_name, tablespace_name, autoextensible FROM dba_data_files;
 
 📎 **Extension**: `.log`
 
-🔍 **Useful View**:
+🔍 **Query Example**:
 
 ```sql
 SELECT group#, sequence#, status, archived FROM v$log;
@@ -385,7 +385,7 @@ SELECT group#, sequence#, status, archived FROM v$log;
 
 ---
 
-### **3. Controlfiles**
+## ✅ **3. Controlfiles**
 
 📘 **Definition**:
 *A control file is a small binary file that records the structure and metadata of the database. It is essential for database startup and recovery.*
@@ -410,7 +410,7 @@ SELECT group#, sequence#, status, archived FROM v$log;
 * `control01.ctl`
 * `control02.ctl`
 
-🔍 **Useful View**:
+🔍 **Query Example**:
 
 ```sql
 SELECT name FROM v$controlfile;
@@ -418,7 +418,7 @@ SELECT name FROM v$controlfile;
 
 ---
 
-### **4. Tempfiles**
+## ✅ **4. Tempfiles**
 
 📘 **Definition**:
 *Tempfiles provide temporary disk storage for operations like sorting, hashing, and global temporary table storage. They are not backed up and are cleared after shutdown.*
@@ -445,7 +445,7 @@ SELECT name FROM v$controlfile;
 * `temp01.dbf`
 * `temp_undotbs1.dbf`
 
-🔍 **Useful View**:
+🔍 **Query Example**:
 
 ```sql
 SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_files;
@@ -453,7 +453,7 @@ SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_file
 
 ---
 
-### **5. Archivelog Files**
+## ✅ **5. Archivelog Files**
 
 📘 **Definition**:
 *Archived logs are offline copies of redo logs generated in ARCHIVELOG mode. They are essential for point-in-time recovery and disaster recovery.*
