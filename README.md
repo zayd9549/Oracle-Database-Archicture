@@ -313,7 +313,7 @@ These components reside on **disk** and are **persistent**, meaning they exist e
 
 ---
 
-### #### **1. Datafiles**
+### **1. Datafiles**
 
 📘 **Definition**:
 *Datafiles are the physical files on disk that store all user and system data in an Oracle database. They hold tables, indexes, LOBs, and internal objects like undo and data dictionary information.*
@@ -347,7 +347,7 @@ SELECT file_name, tablespace_name, autoextensible FROM dba_data_files;
 
 ---
 
-### #### **2. Online Redolog Files**
+### **2. Online Redolog Files**
 
 📘 **Definition**:
 *Online redo logs are files that record all changes made to the database as they happen. They are crucial for crash recovery and instance recovery.*
@@ -385,7 +385,7 @@ SELECT group#, sequence#, status, archived FROM v$log;
 
 ---
 
-### #### **3. Controlfiles**
+### **3. Controlfiles**
 
 📘 **Definition**:
 *A control file is a small binary file that records the structure and metadata of the database. It is essential for database startup and recovery.*
@@ -418,7 +418,7 @@ SELECT name FROM v$controlfile;
 
 ---
 
-### #### **4. Tempfiles**
+### **4. Tempfiles**
 
 📘 **Definition**:
 *Tempfiles provide temporary disk storage for operations like sorting, hashing, and global temporary table storage. They are not backed up and are cleared after shutdown.*
@@ -453,7 +453,7 @@ SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_file
 
 ---
 
-#### **5. Archivelog Files**
+### **5. Archivelog Files**
 
 📘 **Definition**:
 *Archived logs are offline copies of redo logs generated in ARCHIVELOG mode. They are essential for point-in-time recovery and disaster recovery.*
@@ -500,192 +500,4 @@ ORDER BY sequence#;
   ```sql
   DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7';
   ```
-
-
-#### **6. Parameter Files (PFILE/SPFILE)**
-
-* **Purpose**: Store **instance configuration** parameters.
-* **Types**:
-
-  * **PFILE**: Text file, edited manually.
-  * **SPFILE**: Binary, server-managed (recommended for production).
-* **Important for**: Defining memory, process limits, file paths.
-* **Examples**: `initORCL.ora`, `spfileORCL.ora`
-
----
-
-#### **7. Password Files**
-
-* **Purpose**: Enable **remote SYSDBA/SYSOPER** logins.
-* **Required for**: Remote admin tasks (like using RMAN or DGMGRL).
-* **Created using**: `orapwd` utility.
-* **Stored Outside**: Not in the database.
-* **Examples**: `orapwORCL`
-
----
-
-#### **8. Alert Log**
-
-* **Purpose**: Records **critical events** like:
-
-  * Instance startup/shutdown
-  * ORA- errors
-  * Log switches, checkpoints
-* **Location**: `$ORACLE_BASE/diag/.../alert.log`
-* **Used for**: Health checks, monitoring, and debugging.
-
----
-
-#### **9. Trace Files**
-
-* **Purpose**: Store **diagnostic information**.
-* **When generated**:
-
-  * Background process failures
-  * SQL tracing (performance tuning)
-  * User errors (session-specific)
-* **Types**:
-
-  * Background process trace
-  * Foreground/user process trace
-* **Used by**: DBAs and Oracle Support.
-
----
-
----
-
-## 🧠 **LOGICAL STRUCTURE**
-
-**(Under "Instance")**
-These are **memory structures and processes** that exist only **while the instance is running**.
-
----
-
-### 🔹 **Memory Components**
-
-#### **1. System Global Area (SGA)**
-
-* **Shared memory** used by all server and background processes.
-* Allocated at **instance startup**.
-* Controlled by parameters like `SGA_TARGET`, `SGA_MAX_SIZE`.
-
-##### 🔸 Subcomponents:
-
----
-
-##### 🧩 **a. Shared Pool**
-
-* **Purpose**: Caches metadata, parsed SQL/PLSQL, and execution plans.
-* **Avoids**: Re-parsing SQL (improves performance).
-* **Key areas**:
-
-  * **Library Cache**
-  * **Data Dictionary Cache (Row Cache)**
-
----
-
-###### 📚 Library Cache (within Shared Pool)
-
-* **Stores**:
-
-  * Parsed SQL statements
-  * Execution plans
-  * PL/SQL blocks (procedures, functions)
-* **Benefits**:
-
-  * Eliminates hard parsing
-  * Improves CPU and memory efficiency
-* **Operations**:
-
-  * On repeated query, checks cache → soft parse if found
-* **Common Issues**:
-
-  * **SQL not shared** due to literals instead of bind variables
-  * **ORA-04031** if cache space is exhausted
-
----
-
-###### 🗂 Data Dictionary Cache (Row Cache)
-
-* **Purpose**: Caches **object metadata** and privileges.
-* **Contents**:
-
-  * Table definitions
-  * User roles
-  * Column datatypes
-  * Privilege metadata
-* **Faster than** querying data dictionary base tables.
-* **Supports**: Parsing and validation of SQL.
-
----
-
-##### 🧩 **b. Database Buffer Cache**
-
-* **Purpose**: Caches data blocks read from datafiles.
-* **Improves**: I/O performance.
-* **Modified blocks** → marked dirty → written by DBWn.
-
----
-
-##### 🧩 **c. Redo Log Buffer**
-
-* **Purpose**: Holds redo entries (changes made to data).
-* **Written by**: LGWR to redo log files.
-* **Supports**: Recovery and rollback.
-
----
-
-##### 🧩 **d. Large Pool**
-
-* **Purpose**: Optional pool for:
-
-  * Shared Server operations
-  * RMAN
-  * Parallel queries
-* **Benefits**: Reduces contention with shared pool.
-
----
-
-##### 🧩 **e. Java Pool**
-
-* **Purpose**: Memory for Java stored procedures & classes.
-* **Used by**: JVM inside Oracle.
-
----
-
-##### 🧩 **f. Streams Pool**
-
-* **Purpose**: Memory for replication (Streams or GoldenGate).
-
----
-
-#### **2. Program Global Area (PGA)**
-
-* **Private memory** region used by server processes.
-* **Contains**:
-
-  * Sort areas
-  * Session variables
-  * Hash joins
-* **Controlled by**: `PGA_AGGREGATE_TARGET`
-* **Not shared** between sessions.
-
----
-
-### 🔹 **Background Processes**
-
-| Process  | Purpose                                                       |
-| -------- | ------------------------------------------------------------- |
-| **DBWn** | Writes dirty blocks from buffer cache to datafiles.           |
-| **LGWR** | Writes redo log buffer contents to online redo logs.          |
-| **SMON** | System Monitor – instance recovery, temp segment cleanup.     |
-| **PMON** | Process Monitor – cleans up after failed sessions.            |
-| **CKPT** | Checkpoint – updates controlfile and datafile headers.        |
-| **ARCn** | Archive process – moves filled redo logs to archive location. |
-| **RECO** | Handles distributed transaction recovery.                     |
-| **MMON** | Monitors metrics and alerts.                                  |
-| **MMNL** | Lightweight monitoring support.                               |
-
----
-
 
