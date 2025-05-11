@@ -1,4 +1,4 @@
-## ✅ ** RDBMS **
+## ✅ **RDBMS**
 
 **RDBMS** stands for **Relational Database Management System**.
 
@@ -453,7 +453,7 @@ SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_file
 
 ---
 
-### #### **5. Archivelog Files**
+#### **5. Archivelog Files**
 
 📘 **Definition**:
 *Archived logs are offline copies of redo logs generated in ARCHIVELOG mode. They are essential for point-in-time recovery and disaster recovery.*
@@ -480,10 +480,17 @@ SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_file
 * `arch_0001_123.arc`
 * `1_34567_1122334455.dbf`
 
-🔍 **Useful View**:
+🔍 **V\$ Views**:
+
+* `V$ARCHIVED_LOG` – Lists all archived logs and their statuses
+* `V$LOG_HISTORY` – History of redo log switches and archiving
+
+📎 **Query Example**:
 
 ```sql
-SELECT sequence#, name, applied, completion_time FROM v$archived_log;
+SELECT name, thread#, sequence#, applied
+FROM v$archived_log
+ORDER BY sequence#;
 ```
 
 🧠 **Best Practice**:
