@@ -1,4 +1,4 @@
-## ✅ **Simple Explanation (For Beginners)**
+## ✅ ** RDBMS **
 
 **RDBMS** stands for **Relational Database Management System**.
 
@@ -68,13 +68,6 @@ As an Oracle DBA, you will:
 * Monitor **performance and space** usage
 
 Oracle is one of the most powerful and feature-rich **RDBMS platforms** available, used widely in enterprises for mission-critical applications.
-
----
-Here's the **enhanced and expanded version** of the **Oracle Database Server Architecture** focusing on both **PHYSICAL** and **LOGICAL** structures, with more detailed and additional points:
-
----
-
-Sure! Here's the **detailed explanation for Oracle Database Block**, followed by **Segment** and then **Tablespace** in sequence:
 
 ---
 
@@ -214,10 +207,6 @@ A **segment** is like a **chapter** in a book:
 
 * A table with 1000 rows may initially use one segment.
 * If the table grows and needs more space, Oracle will allocate more extents to the segment until it grows to the required size.
-
----
-
-Great! Here's the detailed explanation for **Tablespace**:
 
 ---
 
