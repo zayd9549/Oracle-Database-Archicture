@@ -9,7 +9,7 @@
 
 ---
 
-## 🔍 Detailed Explanation (For a Technical Understanding)
+## 🔍 Detailed Explanation 
 
 ### 1. 📘 **Definition**
 
