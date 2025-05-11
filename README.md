@@ -515,35 +515,6 @@ Absolutely! Here's the updated **1. Datafiles** section with a **definition** at
 
 ---
 
-#### **4. Tempfiles**
-
-* **Purpose**: Provide **temporary storage** for operations like:
-
-  * Sorting
-  * Hash joins
-  * Global temporary tables
-* **Associated with**: TEMP tablespace.
-* **Characteristics**:
-
-  * Not backed up (can be recreated).
-  * Cleared after **shutdown**.
-* **Examples**: `temp01.dbf`
-
----
-
-#### **5. Archivelog Files**
-
-* **Purpose**: Store **copies of full redo logs** after they are filled.
-* **Usage**:
-
-  * **Point-in-time recovery**
-  * **Oracle Data Guard** shipping
-* **Generated when**: Database is in **ARCHIVELOG** mode.
-* **Handled by**: ARCn process.
-* **Examples**: `arch_0001_123.arc`
-
----
-
 #### **6. Parameter Files (PFILE/SPFILE)**
 
 * **Purpose**: Store **instance configuration** parameters.
