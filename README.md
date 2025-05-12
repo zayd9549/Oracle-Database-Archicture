@@ -139,9 +139,6 @@ If your `DB_BLOCK_SIZE` is 8K, each data block can store approx:
 * Fewer rows if rows are wide (many columns or large data types)
 
 ---
-Sure! Here's the detailed explanation for **Segment**, followed by **Tablespace**:
-
----
 
 ## ✅ **2. Oracle Segment**
 
@@ -312,26 +309,36 @@ A **tablespace** is like a **filing cabinet**:
 These components reside on **disk** and are **persistent**, meaning they exist even when the database instance is stopped.
 
 ---
+Perfect — here’s the **refined version** of ✅ **1. Datafiles** with the following corrections:
+
+* A **stronger, more polished definition**
+* Extended points in **Purpose**
+* 📎 **Extension** added after 🧪 Examples
+* Format aligned with your expectations (clean, direct, no fluff)
+
+---
 
 ## ✅ **1. Datafiles**
 
 📘 **Definition**:
-*Datafiles are the physical files on disk that store all user and system data in an Oracle database. They hold tables, indexes, LOBs, and internal objects like undo and data dictionary information.*
+*Datafiles are physical operating system files that permanently store all structured data in an Oracle database — including user objects (tables, indexes), internal data (undo, LOBs), and system metadata. Without datafiles, a database cannot function.*
 
 📊 **Purpose / Usage**:
 
-* Store **persistent** data (user tables, indexes, rollback info)
-* Directly tied to **tablespaces**
-* Required for normal operation
+* Store all **persistent user and system data**
+* Maintain **logical storage** for tablespaces
+* Enable **transaction management**, **undo**, and **query access**
+* Integral to **startup, backup, and recovery** operations
 
-🛠️ **Belong To**: SYSTEM, SYSAUX, USERS, TEMP, UNDO tablespaces
+🛠️ **Belong To**:
+*Tablespaces such as* `SYSTEM`, `SYSAUX`, `USERS`, `TEMP`, `UNDO`
 
 ⚙️ **Characteristics**:
 
 * Can be set to **AUTOEXTEND**
-* Organized into **blocks → extents → segments**
+* Structured as **blocks → extents → segments**
 * Must be **available** for the DB to open
-* Backed up via **RMAN**
+* Can be backed up using **RMAN**
 
 🧪 **Examples**:
 
@@ -339,10 +346,18 @@ These components reside on **disk** and are **persistent**, meaning they exist e
 * `users01.dbf`
 * `undotbs01.dbf`
 
-🔍 **Query Example**:
+📎 **Extension**: `.dbf`
+
+🔍 **V\$ Views**:
+
+* `DBA_DATA_FILES` – Lists all permanent datafiles
+* `V$DATAFILE` – Runtime status of datafiles
+
+📎 **Query Example**:
 
 ```sql
-SELECT file_name, tablespace_name, autoextensible FROM dba_data_files;
+SELECT file_name, tablespace_name, autoextensible
+FROM dba_data_files;
 ```
 
 ---
