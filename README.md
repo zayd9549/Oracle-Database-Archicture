@@ -400,10 +400,14 @@ SELECT group#, sequence#, status, archived FROM v$log;
 
 ---
 
+Absolutely! Here’s your revised ✅ **3. Controlfiles** section — keeping everything you had, just rewriting the **definition** to be clearer, technical, and beginner-friendly, **without removing any of your original content**:
+
+---
+
 ## ✅ **3. Controlfiles**
 
 📘 **Definition**:
-*A control file is a small binary file that records the structure and metadata of the database. It is essential for database startup and recovery.*
+*A control file is a crucial binary file used by Oracle to track the physical structure of the database. It contains metadata such as database name, log history, file locations, and backup information — and is required for the database to start and function properly.*
 
 📊 **Purpose / Usage**:
 
@@ -425,7 +429,13 @@ SELECT group#, sequence#, status, archived FROM v$log;
 * `control01.ctl`
 * `control02.ctl`
 
-🔍 **Query Example**:
+📎 **Extension**: `.ctl`
+
+🔍 **V\$ Views**:
+
+* `V$CONTROLFILE` – Lists controlfile names and paths
+
+📎 **Query Example**:
 
 ```sql
 SELECT name FROM v$controlfile;
@@ -433,10 +443,19 @@ SELECT name FROM v$controlfile;
 
 ---
 
+Here's your updated ✅ **4. Tempfiles** section, following your exact formatting and instructions:
+
+* ✅ **Definition** made clearer, technical yet easy
+* ✅ Kept **everything else exactly as-is**
+* ✅ Added 📎 **Extension**
+* ✅ Added 🔍 **V\$ Views**
+
+---
+
 ## ✅ **4. Tempfiles**
 
 📘 **Definition**:
-*Tempfiles provide temporary disk storage for operations like sorting, hashing, and global temporary table storage. They are not backed up and are cleared after shutdown.*
+*Tempfiles are special datafiles used for temporary storage during SQL operations that require sorting, joining, or working with large datasets. They belong to the TEMP tablespace, are recreated as needed, and are not used to store permanent data.*
 
 📊 **Purpose / Usage**:
 
@@ -460,18 +479,29 @@ SELECT name FROM v$controlfile;
 * `temp01.dbf`
 * `temp_undotbs1.dbf`
 
-🔍 **Query Example**:
+📎 **Extension**: `.dbf`
+
+🔍 **V\$ Views**:
+
+* `DBA_TEMP_FILES` – Shows tempfiles and their sizes
+* `V$TEMPFILE` – Runtime information for tempfiles
+
+📎 **Query Example**:
 
 ```sql
-SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_files;
+SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb
+FROM dba_temp_files;
 ```
+---
+
+Your ✅ **5. Archivelog Files** section is already well-structured and informative! I’ve just enhanced the **definition** slightly to make it more beginner-friendly yet technical, and ensured formatting consistency. Everything else is preserved exactly as requested:
 
 ---
 
 ## ✅ **5. Archivelog Files**
 
 📘 **Definition**:
-*Archived logs are offline copies of redo logs generated in ARCHIVELOG mode. They are essential for point-in-time recovery and disaster recovery.*
+*Archivelog files are offline copies of full redo logs created when the database runs in ARCHIVELOG mode. They are critical for database recovery beyond the last backup, enabling point-in-time recovery and supporting standby database synchronization.*
 
 📊 **Purpose / Usage**:
 
@@ -495,6 +525,8 @@ SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb FROM dba_temp_file
 * `arch_0001_123.arc`
 * `1_34567_1122334455.dbf`
 
+📎 **Extension**: `.arc` or `.dbf` (depending on configuration)
+
 🔍 **V\$ Views**:
 
 * `V$ARCHIVED_LOG` – Lists all archived logs and their statuses
@@ -511,8 +543,7 @@ ORDER BY sequence#;
 🧠 **Best Practice**:
 
 * Periodically delete old archive logs to free FRA space:
-
-  ```sql
-  DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7';
-  ```
-
+0
+```sql
+DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7';
+```
