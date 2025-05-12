@@ -651,7 +651,7 @@ FROM v$pwfile_users;
 
 📎 **Extension**: `.log`
 
-🔍 **Query Example (ADR style)**:
+🔍 **Query Example**:
 
 ```sql
 SELECT value 
