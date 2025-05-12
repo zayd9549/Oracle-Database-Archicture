@@ -309,14 +309,6 @@ A **tablespace** is like a **filing cabinet**:
 These components reside on **disk** and are **persistent**, meaning they exist even when the database instance is stopped.
 
 ---
-Perfect — here’s the **refined version** of ✅ **1. Datafiles** with the following corrections:
-
-* A **stronger, more polished definition**
-* Extended points in **Purpose**
-* 📎 **Extension** added after 🧪 Examples
-* Format aligned with your expectations (clean, direct, no fluff)
-
----
 
 ## ✅ **1. Datafiles**
 
@@ -397,11 +389,6 @@ FROM dba_data_files;
 ```sql
 SELECT group#, sequence#, status, archived FROM v$log;
 ```
-
----
-
-Absolutely! Here’s your revised ✅ **3. Controlfiles** section — keeping everything you had, just rewriting the **definition** to be clearer, technical, and beginner-friendly, **without removing any of your original content**:
-
 ---
 
 ## ✅ **3. Controlfiles**
@@ -440,16 +427,6 @@ Absolutely! Here’s your revised ✅ **3. Controlfiles** section — keeping ev
 ```sql
 SELECT name FROM v$controlfile;
 ```
-
----
-
-Here's your updated ✅ **4. Tempfiles** section, following your exact formatting and instructions:
-
-* ✅ **Definition** made clearer, technical yet easy
-* ✅ Kept **everything else exactly as-is**
-* ✅ Added 📎 **Extension**
-* ✅ Added 🔍 **V\$ Views**
-
 ---
 
 ## ✅ **4. Tempfiles**
