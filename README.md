@@ -912,8 +912,6 @@ WHERE name IN ('total PGA allocated', 'maximum PGA allocated');
 
 ---
 
-
-
 📎 **View-level Summary**:
 
 * `V$SGA`: Total shared memory usage
@@ -921,4 +919,477 @@ WHERE name IN ('total PGA allocated', 'maximum PGA allocated');
 * `V$PROCESS_MEMORY`: Memory by process
 * `V$MEMORY_TARGET_ADVICE`: Recommendations
 
+
+Absolutely! Below is a **revised and deeper explanation** of the **mandatory Oracle background processes** listed in your diagram — tailored to include **critical details** (like *dirty buffers*, *free buffer management*, etc.) and formatted consistently for professional documentation or teaching:
+
+---
+
+## ✅ **Mandatory Oracle Background Processes (Expanded View)**
+
+---
+
+### 🔹 **1. DBWR (Database Writer)**
+
+🧠 **Primary Role**:
+
+* Writes **dirty buffers** (modified data blocks) from the **Database Buffer Cache** to **datafiles**.
+* Frees up **buffer cache space** for incoming data blocks.
+
+🛠️ **Why Critical?**
+
+* Ensures **durability** by moving data from volatile memory to persistent disk.
+* Works with **free buffer management**—if no clean buffer is available, it must flush dirty blocks to make space.
+
+📌 **Triggers**:
+
+* When the buffer cache has too many dirty blocks.
+* On **checkpoint**, **tablespace offline**, or **database shutdown**.
+
+📎 **Key Views**: `V$DBFILE`, `V$BUFFER_POOL_STATISTICS`, `V$SYSSTAT`
+
+Great request! Let's expand the **DBWR (Database Writer)** section by adding **buffer types**, **LRU (Least Recently Used) mechanism**, and related **internal memory management logic** — all of which are crucial for a deep understanding of how Oracle handles memory and disk I/O.
+
+---
+
+## 🔹 **1. DBWR (Database Writer)**
+
+🧠 **Primary Role**:
+
+* Writes **dirty buffers** (modified blocks) from the **Database Buffer Cache** (part of SGA) to **datafiles** on disk.
+* Frees up buffer cache space by writing old or infrequently used blocks to disk.
+
+---
+
+### ✅ **Types of Buffers in Buffer Cache**
+
+The **Database Buffer Cache** contains **three main types of buffers**:
+
+| Buffer Type        | Description                                                                 |
+| ------------------ | --------------------------------------------------------------------------- |
+| **Free Buffers**   | Unused buffers ready to be filled with data read from disk.                 |
+| **Pinned Buffers** | Buffers currently being accessed by a user session (locked for processing). |
+| **Dirty Buffers**  | Buffers that have been modified in memory but **not yet written** to disk.  |
+
+🧾 DBWR is responsible for **flushing dirty buffers** to datafiles and converting them into **free buffers**.
+
+---
+
+### 🧠 **What is the LRU (Least Recently Used) List?**
+
+Oracle uses an **LRU (Least Recently Used) replacement algorithm** to manage buffer cache memory efficiently.
+
+#### 🔄 **How LRU Works**:
+
+* **Most recently accessed blocks** are kept near the **head** of the list.
+* **Least recently used** blocks go to the **tail**.
+* When the buffer cache is full and a new block is needed, Oracle looks at the **tail** for a **clean (non-dirty)** buffer to reuse.
+
+#### 📌 **But what if buffers at the tail are dirty?**
+
+* Oracle initiates **DBWR** to flush dirty blocks to disk, turning them into **free buffers**.
+
+#### 💡 Internally:
+
+* Oracle actually uses **two sub-lists**:
+
+  * **LRU - Writing Sublist**: Buffers eligible for reuse (includes clean and dirty).
+  * **LRU - Touch Sublist**: Recently accessed buffers promoted to avoid being aged out.
+
+---
+
+### 🔄 **DBWR's Triggers (When It Wakes Up)**
+
+| Trigger Event                               | Description                                       |
+| ------------------------------------------- | ------------------------------------------------- |
+| **Buffer cache has too many dirty buffers** | To prevent shortage of free buffers               |
+| **Free buffer shortage**                    | Reclaims space by writing dirty buffers to disk   |
+| **Checkpoint**                              | Flushes all dirty buffers to disk for consistency |
+| **Tablespace/datafile offline/drop**        | Writes related buffers to disk                    |
+| **Database shutdown**                       | Ensures all data is persistent                    |
+
+---
+
+### 🧰 **Performance Considerations**
+
+* **Too many dirty buffers** → Increased pressure on DBWR.
+* **Frequent writes** → Higher I/O, but better consistency during recovery.
+* **Buffer busy waits** → Happens when no free/pinned buffer is available (DBWR lagging behind).
+
+---
+
+### 📎 **Relevant Views for Monitoring**:
+
+* `V$DB_CACHE_ADVICE` – Buffer cache tuning suggestions
+* `V$BUFFER_POOL_STATISTICS` – Hit ratios, dirty buffer stats
+* `V$SYSSTAT` – Overall buffer activity (`db block gets`, `consistent gets`)
+* `V$WAITSTAT`, `V$SESSION_WAIT` – Identify waits like `buffer busy waits`
+
+---
+
+## 🔹 **2. LGWR (Log Writer)**
+
+🧠 **Primary Role**:
+
+* Writes **redo entries** from the **Redo Log Buffer** (in SGA) to the **online redo log files** on disk.
+* Ensures **durability** of committed transactions (crash recovery guarantee).
+* Maintains the **ACID (Atomicity, Consistency, Isolation, Durability)** principle — especially **Durability**.
+
+---
+
+### 🧱 **Redo Log Buffer – What LGWR Writes**
+
+* The **Redo Log Buffer** temporarily stores *change vectors* — small pieces of information that describe **data changes** (not the data itself).
+* These include DML (INSERT/UPDATE/DELETE), DDL, and internal metadata changes.
+* LGWR writes these changes to **online redo log files**.
+
+---
+
+### ⏰ **When Does LGWR Write? (Trigger Events)**
+
+| Trigger Event                      | Description                                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **COMMIT / ROLLBACK issued**       | LGWR writes all redo for the committed transaction to redo logs before acknowledging success to user. |
+| **Redo Log Buffer one-third full** | Writes automatically to avoid buffer overflow.                                                        |
+| **Every 3 seconds (timeout)**      | Default behavior to flush redo if no activity.                                                        |
+| **DBWR writes dirty buffers**      | LGWR writes redo first to maintain Write-Ahead Logging (WAL) protocol.                                |
+| **Log Switch**                     | LGWR finishes writing to current log and starts the next redo log group.                              |
+
+---
+
+### 🔄 **Write-Ahead Logging (WAL) Principle**
+
+Before **DBWR** can write dirty data blocks to disk, **LGWR must first** flush **redo entries** describing those changes.
+This ensures that during crash recovery, Oracle can **reconstruct the changes** using redo logs.
+
+---
+
+### 🧰 **LGWR & Crash Recovery**
+
+* Redo logs written by LGWR are **essential for instance/crash recovery**.
+* Upon restart after a crash, **SMON** applies redo from the online redo logs to **bring the DB to a consistent state**.
+* Without redo, Oracle can't recover committed transactions.
+
+---
+
+### ⚙️ **Log Groups and Members**
+
+* LGWR writes to **one redo log group at a time**.
+* Each group can have **multiple members (multiplexing)** for redundancy.
+* In case one member fails, LGWR continues writing to others in the same group.
+
+---
+
+### 🔍 **Performance & Wait Events**
+
+| Issue                      | Description                                                                    |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| `log file sync` wait       | Happens when sessions wait for LGWR to flush redo (commit latency).            |
+| `log file parallel write`  | LGWR waiting for I/O to complete writing redo logs.                            |
+| **Frequent commits**       | Can overload LGWR, increasing commit latency.                                  |
+| **Slow I/O for redo logs** | Directly impacts overall DB performance. Use fast disks or SSDs for redo logs. |
+
+---
+
+### 📎 **Relevant Views for Monitoring**
+
+* `V$LOG` – Status of redo log groups
+* `V$LOGFILE` – Redo log file names and paths
+* `V$SYSSTAT` – Redo size, writes, commits
+* `V$SESSION_WAIT` – Look for `log file sync` or `log file parallel write`
+
+---
+
+### 💡 Best Practices
+
+* Use **multiple redo log members** per group (multiplexing).
+* Place redo logs on **fast storage** (preferably SSD or separate disk).
+* Avoid **too frequent commits** in application logic.
+
+---
+
+## 🔹 **3. SMON (System Monitor)**
+
+🧠 **Primary Role**:
+SMON is responsible for **instance recovery**, **temporary space cleanup**, and **space management** tasks.
+It ensures that the database starts in a consistent state after an **abnormal shutdown or crash**.
+
+---
+
+### 🔁 **SMON's Core Responsibilities**
+
+| Function                      | Description                                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Crash Recovery**            | Applies committed changes from redo logs and rolls back uncommitted ones using the **redo and undo**. |
+| **Temporary Segment Cleanup** | Frees space used by **temporary segments** that were not deallocated (e.g., failed sort operations).  |
+| **Coalescing Free Space**     | Merges adjacent free extents in **dictionary-managed tablespaces** to reduce fragmentation.           |
+| **Shrinking Undo Segments**   | Reclaims undo space no longer in use.                                                                 |
+| **Instance/Startup Recovery** | Automatically runs if Oracle detects a crash upon startup.                                            |
+
+---
+
+### 🩺 **Crash Recovery (Instance Recovery)**
+
+When Oracle detects that the **last shutdown was not clean** (e.g., power failure, kill -9, crash), SMON initiates **instance recovery**, consisting of two main steps:
+
+#### 1️⃣ Redo (Roll Forward)
+
+* Reads **online redo logs**.
+* **Re-applies committed changes** that were not yet written to datafiles.
+
+#### 2️⃣ Undo (Roll Back)
+
+* Uses undo information to **rollback**:
+
+  * Incomplete/uncommitted transactions.
+  * Transactions from users who were mid-operation during crash.
+
+📌 **SMON uses:**
+
+* Redo log files (written by LGWR)
+* Undo segments (managed via undo tablespace)
+
+---
+
+### ⚙️ **SMON & Temporary Segments**
+
+* Temporary segments can be created during operations like:
+
+  * `ORDER BY`, `GROUP BY`, `SORT`, `CREATE INDEX`, etc.
+* If a session ends unexpectedly, SMON removes these **orphaned temp segments** automatically.
+
+---
+
+### 📏 **SMON & Free Space Coalescing**
+
+* In **dictionary-managed tablespaces**, SMON:
+
+  * Periodically merges adjacent free extents.
+  * Helps reduce **space fragmentation**.
+* In **locally managed tablespaces (LMTs)**, this is no longer needed (bitmap-based management).
+
+---
+
+### 🕵️‍♂️ **Monitoring SMON Activity**
+
+| View         | Purpose                                                                     |
+| ------------ | --------------------------------------------------------------------------- |
+| `V$SESSION`  | SMON will show up as a background process with `PROGRAM='SMON'`.            |
+| `V$PROCESS`  | Tracks the OS process linked to SMON.                                       |
+| `V$UNDOSTAT` | Undo segment usage info (relevant during recovery).                         |
+| `ALERT.LOG`  | Will log crash recovery steps (roll forward, roll back, recovery duration). |
+
+---
+
+### 🛑 **What Happens During a Crash? (Simplified Flow)**
+
+1. Crash happens (e.g., power outage).
+2. Upon next startup:
+
+   * Oracle checks **SCN in control file vs datafiles**.
+   * Detects mismatch → triggers SMON.
+3. SMON:
+
+   * Applies redo (from logs) to redo committed changes.
+   * Rolls back any uncommitted transactions.
+4. Database opens **clean and consistent**.
+
+---
+
+### 🔐 **SMON is Critical**
+
+* Without SMON, Oracle **cannot perform instance recovery**.
+* It is started automatically and **must always be running** in any healthy Oracle instance.
+
+---
+
+### 💡 Best Practices & Notes
+
+* You don’t manually control SMON—it is automatic and essential.
+* If you observe **long startup times after a crash**, check:
+
+  * Size of redo logs.
+  * Number of uncommitted transactions.
+  * Disk I/O performance (affects redo read & undo application).
+* Always check `alert.log` after instance recovery for details.
+
+---
+
+## 🔹 **4. PMON (Process Monitor)**
+
+🧠 **Primary Role**:
+PMON is responsible for **detecting failed user and server processes**, **cleaning up resources** they held, and **restoring availability** of those resources to the system.
+
+---
+
+### 🧹 **PMON's Core Responsibilities**
+
+| Function                       | Description                                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| **Process Cleanup**            | Cleans up after user or background process failure (e.g., kills, crashes).              |
+| **Session Resource Release**   | Frees up memory, rollback segments, locks, cursors, and temp segments.                  |
+| **Listener Registration**      | Registers instance information with the Oracle Listener (Dynamic Service Registration). |
+| **Restart Failed Dispatchers** | In shared server mode, restarts failed dispatchers and servers.                         |
+
+---
+
+### ⚠️ **When Does PMON Get Triggered?**
+
+PMON is **event-driven**, not time-based:
+
+* Triggered **only** when a **process failure or crash** is detected.
+* Common causes:
+
+  * `kill -9` on a client session.
+  * Network disconnection.
+  * Application crashes without proper logoff.
+
+---
+
+### 🔄 **Steps Performed by PMON on Session Crash**
+
+Let’s say a user’s session suddenly terminates mid-transaction. PMON will:
+
+1. **Detect** the abnormal process termination.
+2. **Free PGA memory** allocated to that user session.
+3. **Release locks** (DML/DDL) held by the session.
+4. **Mark any active transactions** for rollback by SMON.
+5. **Deallocate temp segments** used by the session.
+6. **Close cursors** or connections left open.
+7. **Restore session slots** for reuse.
+
+---
+
+### 📡 **PMON & Listener Communication**
+
+PMON performs **Dynamic Registration** with the Oracle **Listener**, especially important when:
+
+* `SERVICE_NAMES`, `INSTANCE_NAME`, `HOST`, `PORT` info needs to be broadcasted.
+* Makes instance available in `TNSNAMES.ORA` without manual updates.
+
+💡 If PMON fails to register (e.g., listener not yet up), it will **retry periodically**.
+
+---
+
+### 🛠️ **Shared Server Architecture Role**
+
+If Oracle is configured for **Shared Server Mode**, PMON also:
+
+* **Restarts** failed dispatcher processes.
+* **Monitors** shared server pool health.
+
+---
+
+### 🔍 **Monitoring PMON**
+
+| View               | Use                                                          |
+| ------------------ | ------------------------------------------------------------ |
+| `V$SESSION`        | PMON shows as a background process.                          |
+| `V$PROCESS`        | See OS PID tied to PMON.                                     |
+| `V$RESOURCE_LIMIT` | Indirectly helps monitor freed session slots.                |
+| `ALERT.LOG`        | Logs PMON-related startup/shutdown info and listener issues. |
+
+---
+
+### 💡 **Important Notes**
+
+* PMON works closely with SMON:
+
+  * **PMON detects** a dead session.
+  * **SMON rolls back** the incomplete transaction (if needed).
+
+* PMON is **not responsible** for rolling back uncommitted work — that’s SMON’s job.
+
+* Dynamic registration eliminates the need for manual entries in `listener.ora`.
+
+---
+
+### 📌 **Real-World Use Case**
+
+> **Scenario**: A developer kills a session during a `DELETE` statement on a large table.
+
+🔄 Behind the scenes:
+
+* PMON detects session failure.
+* Releases locks on that table.
+* Cleans up PGA memory and cursors.
+* Marks transaction for rollback.
+* SMON handles undo if transaction was active.
+
+---
+
+### ❗ **Without PMON...**
+
+* Sessions would leave **orphaned locks**, **unreleased memory**, **hanging temp segments**, and more.
+* Over time, this would lead to memory pressure, lock contention, and unstable system behavior.
+
+---
+
+
+### 🔹 **5. CKPT (Checkpoint Process)**
+
+🧠 **Primary Role**:
+
+* Coordinates **database checkpoints**.
+* Signals **DBWR** to write all dirty buffers to disk.
+* Updates checkpoint-related metadata in:
+
+  * **Control files**
+  * **Datafile headers**
+
+🛠️ **Why Critical?**
+
+* Shortens **instance recovery time** by establishing known consistent points (SCNs).
+* Ensures that log sequence numbers and SCNs are synchronized across datafiles.
+
+📌 **When Triggered**:
+
+* **Log switch**, **shutdown**, **every few minutes** (based on configuration).
+
+📎 **Key Views**: `V$DATAFILE_HEADER`, `V$DATABASE`, `V$CHECKPOINT_STATS`
+
+---
+
+### 🔹 **6. RECO (Recoverer Process)**
+
+🧠 **Primary Role**:
+
+* Resolves **in-doubt distributed transactions**.
+* Automatically **commits** or **rolls back** distributed operations after network or system failures.
+
+🛠️ **Why Critical?**
+
+* Essential in **distributed database environments** using **database links (DBLINKs)**.
+* Prevents **locking/blocking** due to unresolved transactions across databases.
+
+📌 **When Triggered**:
+
+* On startup, RECO checks the **2PC (Two-Phase Commit)** failure list.
+* Engaged when a distributed failure is detected.
+
+📎 **Key Views**: `DBA_2PC_PENDING`, `DBA_2PC_NEIGHBORS`
+
+---
+
+### 🔹 **7. ARCn (Archiver)**
+
+*(ARC0 to ARC9 – Only in ARCHIVELOG mode)*
+
+🧠 **Primary Role**:
+
+* Copies **filled redo log files** from the redo log destination to the **archive destination**.
+* Ensures redo logs are preserved before being overwritten.
+
+🛠️ **Why Critical?**
+
+* Supports **online backups**, **point-in-time recovery**, and **Data Guard**.
+* Keeps a historical trail of all changes in the database.
+
+📌 **When Triggered**:
+
+* When a **log switch** occurs.
+* Automatically by the Oracle instance if ARCHIVELOG mode is enabled.
+
+📎 **Key Views**: `V$ARCHIVED_LOG`, `V$LOG_HISTORY`, `V$ARCHIVE_DEST_STATUS`
+
+---
 
