@@ -1699,3 +1699,110 @@ It acts **only after a redo log fills up**, safely storing the log’s contents 
 
 ---
 
+## **Multitenant Architecture (CDB and PDB)**
+
+*(Introduced in Oracle 12c — a major shift in Oracle Database architecture)*
+
+---
+
+### ✅ **What is Multitenant Architecture?**
+
+Multitenant architecture allows **a single Oracle Database container (CDB)** to hold multiple **independent pluggable databases (PDBs)**.
+
+It is Oracle’s way of:
+
+* Simplifying **database consolidation**
+* Improving **manageability**
+* Enabling **cloud-ready architecture**
+
+---
+
+### ✅ **Core Components**
+
+| Component                            | Description                                                                                                          |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **CDB (Container Database)**         | The main database instance that holds the root metadata and manages resources for all PDBs.                          |
+| **PDB (Pluggable Database)**         | Self-contained user databases that plug into the CDB. Each PDB has its own data dictionary, schemas, datafiles, etc. |
+| **Root Container (CDB\$ROOT)**       | Contains Oracle system metadata shared by all PDBs.                                                                  |
+| **Seed Container (PDB\$SEED)**       | A read-only template used to quickly create new PDBs.                                                                |
+| **Application Container (Optional)** | Used to manage shared applications across multiple PDBs.                                                             |
+
+---
+
+### ✅ **Visual Diagram**
+
+```
+                  +-------------------------------+
+                  |         CDB (Container)       |
+                  |-------------------------------|
+                  |         CDB$ROOT              |
+                  |   - Oracle Metadata           |
+                  |   - Common Users              |
+                  |-------------------------------|
+                  |         PDB$SEED              |
+                  |   - Read-only Template        |
+                  |-------------------------------|
+                  |         PDB1 (e.g. HRDB)      |
+                  |   - User Schemas, Datafiles   |
+                  |-------------------------------|
+                  |         PDB2 (e.g. FINDB)     |
+                  |   - Separate from PDB1        |
+                  +-------------------------------+
+```
+
+---
+
+### ✅ **Why Multitenant? (Benefits)**
+
+| Benefit                 | Description                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| **Easier Management**   | Start, stop, backup, or clone a single PDB independently.                            |
+| **Rapid Provisioning**  | Create new PDBs in seconds using `PDB$SEED`.                                         |
+| **Isolation**           | Each PDB is logically isolated from others — useful in dev/test/prod setups.         |
+| **Resource Management** | Control CPU/memory allocation at the PDB level.                                      |
+| **Reduced Overhead**    | Shared background processes and memory = efficient consolidation.                    |
+| **Portability**         | PDBs can be unplugged from one CDB and plugged into another (even across platforms). |
+| **Cloud-Ready**         | Essential for Oracle Autonomous Database and Oracle Cloud Infrastructure (OCI).      |
+
+---
+
+### ✅ **Types of Users**
+
+| User Type       | Scope                                                      |
+| --------------- | ---------------------------------------------------------- |
+| **Common User** | Exists in the CDB and all PDBs (e.g., `C##ADMIN`)          |
+| **Local User**  | Exists only within a specific PDB (e.g., `HR`, `FIN_USER`) |
+
+---
+
+### ✅ **Commands Overview**
+
+| Task              | Command                                                                 |
+| ----------------- | ----------------------------------------------------------------------- |
+| Create a new PDB  | `CREATE PLUGGABLE DATABASE pdb1 ADMIN USER pdbadmin IDENTIFIED BY pwd;` |
+| Open a PDB        | `ALTER PLUGGABLE DATABASE pdb1 OPEN;`                                   |
+| List all PDBs     | `SHOW PDBS;`                                                            |
+| Plug/unplug a PDB | `UNPLUG PLUGGABLE DATABASE pdb1 INTO 'pdb1.xml';`                       |
+
+---
+
+### ✅ **Multitenant Modes by Edition**
+
+| Edition                        | PDB Support             |
+| ------------------------------ | ----------------------- |
+| **Oracle XE**                  | 1 PDB only              |
+| **Oracle SE2**                 | 1 user-created PDB      |
+| **Oracle EE (Non-MT License)** | 1 user-created PDB      |
+| **Oracle EE (With MT Option)** | Up to 4096 PDBs per CDB |
+
+---
+
+### ✅ Key Use Cases
+
+* Hosting multiple **microservices** or **apps** in isolated PDBs
+* Simplified **Dev/Test/Prod** environments
+* **Database-as-a-Service (DBaaS)** models
+* **Multi-tenant SaaS** platforms (1 PDB per client)
+
+
+
