@@ -1,7 +1,3 @@
-Absolutely! Here's your content rewritten in the same **detailed, structured, and professional format** we've been using for your Oracle DBA course material.
-
----
-
 ## ✅ **RDBMS (Relational Database Management System)**
 
 📘 **Definition**:
