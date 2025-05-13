@@ -723,3 +723,202 @@ WHERE name = 'Diag Trace';
 
 * Automate collection during errors via **ADRCI incidents**
 
+## 🧠 **LOGICAL STRUCTURE**
+
+**(Under "Instance")**
+These are **memory structures and processes** that exist only **while the instance is running**.
+
+📘 **Definition**:
+*Logical structures in Oracle represent how data is organized and managed in memory and storage, independent of the physical layout.*
+
+
+## 🔹 **Memory Components**
+
+---
+
+## ✅ **1. System Global Area (SGA)**
+
+📘 **Definition**:
+*The System Global Area (SGA) is a shared memory region that contains data and control information for one Oracle database instance. It is used by all server and background processes.*
+
+📊 **Purpose / Usage**:
+
+* Enable **shared access** to critical data across user sessions
+* Reduce **disk I/O** through caching
+* Support **SQL parsing**, **execution**, **logging**, and **data access**
+
+⚙️ **Characteristics**:
+
+* Allocated at **instance startup**
+* Size governed by parameters like `SGA_TARGET`, `SGA_MAX_SIZE`
+* Can use **Automatic Shared Memory Management (ASMM)**
+* Shared across all connected sessions
+
+🧠 **Key Components**:
+
+### 🔷 **a. Database Buffer Cache**
+
+* Stores copies of data blocks read from datafiles
+* Helps avoid frequent disk I/O by reusing data in memory
+* Organized in **dirty**, **pinned**, and **free** lists
+* Modified blocks are eventually written to disk by **DBWn**
+
+📎 V\$ Views:
+
+* `V$BH`, `V$BUFFER_POOL_STATISTICS`
+
+---
+
+### 🔷 **b. Shared Pool**
+
+* Caches **SQL statements**, **PL/SQL procedures**, and **data dictionary** information
+* Reduces parsing overhead and improves response time
+* Divided into:
+
+  * **Library Cache**: Stores parsed SQL/PLSQL
+  * **Data Dictionary Cache**: Stores object definitions, privileges
+
+#### 📚 Library Cache (within Shared Pool)
+
+* **Stores**:
+
+  * Parsed SQL statements
+  * Execution plans
+  * PL/SQL blocks (procedures, functions)
+* **Benefits**:
+
+  * Eliminates hard parsing
+  * Improves CPU and memory efficiency
+* **Operations**:
+
+  * On repeated query, checks cache → soft parse if found
+* **Common Issues**:
+
+  * **SQL not shared** due to literals instead of bind variables
+  * **ORA-04031** if cache space is exhausted
+
+---
+
+#### 🗂 Data Dictionary Cache (Row Cache)
+
+* **Purpose**: Caches **object metadata** and privileges.
+* **Contents**:
+
+  * Table definitions
+  * User roles
+  * Column datatypes
+  * Privilege metadata
+* **Faster than** querying data dictionary base tables.
+* **Supports**: Parsing and validation of SQL.
+
+📎 V\$ Views:
+
+* `V$LIBRARYCACHE`, `V$ROWCACHE`
+
+---
+
+### 🔷 **c. Redo Log Buffer**
+
+* Temporarily holds **redo entries** (change vectors) before they’re written to **online redo logs**
+* Written by the **LGWR** process during:
+
+  * Commit
+  * Log switch
+  * Every 3 seconds or when 1/3 full
+
+📎 V\$ Views:
+
+* `V$LOG`, `V$LOGFILE`, `V$LOG_HISTORY`
+
+---
+
+### 🔷 **d. Large Pool**
+
+* Optional component used for:
+
+  * **RMAN** backups
+  * **Parallel queries**
+  * **Shared Server** UGA
+* Prevents fragmentation of the shared pool
+
+📎 Parameter: `LARGE_POOL_SIZE`
+
+---
+
+### 🔷 **e. Java Pool**
+
+* Memory area used for **Java execution**, especially when running Java stored procedures or EJBs inside the DB
+
+📎 Parameter: `JAVA_POOL_SIZE`
+
+---
+
+### 🔷 **f. Streams Pool**
+
+* Used by **Oracle Streams**, **Advanced Queuing**, and **GoldenGate**
+* Stores queued messages, staging areas, etc.
+
+📎 Parameter: `STREAMS_POOL_SIZE`
+
+---
+
+🔍 **Query Example**:
+
+```sql
+SELECT component, current_size/1024/1024 AS size_mb 
+FROM v$sga_dynamic_components;
+```
+
+📎 **View** total SGA usage:
+
+```sql
+SELECT name, value/1024/1024 AS size_mb 
+FROM v$sga;
+```
+
+---
+
+## ✅ **2. Program Global Area (PGA)**
+
+📘 **Definition**:
+*PGA is a non-shared memory region containing data and control information for a server process. Each user gets their own PGA, and it is not accessible by others.*
+
+📊 **Purpose / Usage**:
+
+* Manage **session-specific operations** like sorting, joins, and buffers
+* Support **session memory**, **private SQL areas**, **work areas**
+
+🧠 **Includes**:
+
+* **Sort area**
+* **Session memory**
+* **Hash join area**
+* **Bitmap merge area**
+* **Cursor state info**
+
+⚙️ **Characteristics**:
+
+* Allocated **per session**
+* Controlled via `PGA_AGGREGATE_TARGET` or `PGA_AGGREGATE_LIMIT`
+* Used heavily by **OLAP** and **parallel query** operations
+
+🔍 **Query Example**:
+
+```sql
+SELECT name, round(value/1024/1024, 2) AS size_mb 
+FROM v$pgastat 
+WHERE name IN ('total PGA allocated', 'maximum PGA allocated');
+```
+
+---
+
+
+
+📎 **View-level Summary**:
+
+* `V$SGA`: Total shared memory usage
+* `V$PGASTAT`: Runtime stats for PGA usage
+* `V$PROCESS_MEMORY`: Memory by process
+* `V$MEMORY_TARGET_ADVICE`: Recommendations
+
+
