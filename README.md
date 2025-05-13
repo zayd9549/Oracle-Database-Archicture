@@ -326,10 +326,6 @@ Oracle offers **different editions** for different use cases and budgets.
 
 ---
 
-### ✅ Diagram for Classroom Slide
-
-You can include this simple visual bridge to reinforce the differences and Oracle's position:
-
 ```
 +------------------------+            +---------------------------+
 | General RDBMS Concepts |   --->     |   Oracle-Specific Terms   |
