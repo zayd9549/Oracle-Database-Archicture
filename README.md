@@ -346,6 +346,46 @@ Oracle offers **different editions** for different use cases and budgets.
 ![image](https://github.com/user-attachments/assets/2ce8a270-d306-4d64-9fd6-854d314d858e)
 
 
+```text
+Oracle Database Server Architecture
+├── Physical
+│   └── Database
+│       ├── Datafiles
+│       ├── Online Redolog
+│       ├── Controlfiles
+│       ├── Tempfiles
+│       ├── Archivelog Files
+│       ├── Parameter Files (PFILE/SPFILE)
+│       ├── Password Files
+│       ├── Alert Log
+│       └── Trace Files
+│
+├── Logical
+│   └── Instance
+│       ├── Memory Structure
+│       │   ├── SGA (System/Shared Global Area)
+│       │   │   ├── Shared Pool
+│       │   │   ├── Database Buffer Cache
+│       │   │   ├── Redo Log Buffer
+│       │   │   ├── Large Pool
+│       │   │   ├── Java Pool
+│       │   │   └── Stream Pool
+│       │   └── PGA (Program Global Area)
+│       │
+│       └── Background Processes
+│           ├── DBWn (Database Writer)
+│           ├── LGWR (Log Writer)
+│           ├── SMON (System Monitor)
+│           ├── PMON (Process Monitor)
+│           ├── CKPT (Checkpoint)
+│           ├── RECO (Recoverer)
+│           └── ARCn (Archiver)
+```
+
+---
+
+
+
 ### 🗄 **PHYSICAL STRUCTURE**
 
 **(Under "Database")**
