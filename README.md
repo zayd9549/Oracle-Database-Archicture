@@ -1048,15 +1048,6 @@ Great request! Let's expand the **DBWR (Database Writer)** section by adding **b
 
 ---
 
-## 🔹 **1. DBWR (Database Writer)**
-
-🧠 **Primary Role**:
-
-* Writes **dirty buffers** (modified blocks) from the **Database Buffer Cache** (part of SGA) to **datafiles** on disk.
-* Frees up buffer cache space by writing old or infrequently used blocks to disk.
-
----
-
 ### ✅ **Types of Buffers in Buffer Cache**
 
 The **Database Buffer Cache** contains **three main types of buffers**:
