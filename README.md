@@ -450,7 +450,25 @@ FROM dba_data_files;
 
 🔁 **Mode**: Work in a **circular fashion** (filled → switch → reuse)
 
-<img width="516" alt="image" src="https://github.com/user-attachments/assets/2d168bfc-3116-4959-80b3-ee9a3940d303" />
+             +-----------------+
+             |   Redo Log 01   |
+             +-----------------+
+                     |
+                     v
+             +-----------------+
+             |   Redo Log 02   |
+             +-----------------+
+                     |
+                     v
+             +-----------------+
+             |   Redo Log 03   |
+             +-----------------+
+                     |
+                     v
+        (Back to Redo Log 01 in circular fashion)
+
+<img width="202" alt="image" src="https://github.com/user-attachments/assets/1e0f5a93-305f-46b7-a2cc-cac245857949" />
+
 
 
 ⚙️ **Characteristics**:
