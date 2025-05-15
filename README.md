@@ -343,8 +343,7 @@ Oracle offers **different editions** for different use cases and budgets.
 
 ---
 
-![image](https://github.com/user-attachments/assets/2ce8a270-d306-4d64-9fd6-854d314d858e)
-
+<img width="818" alt="image" src="https://github.com/user-attachments/assets/d898e4a1-1d39-4929-9eb8-3284630b5b3c" />
 
 ```text
 Oracle Database Server Architecture
