@@ -966,7 +966,23 @@ These are **memory structures and processes** that exist only **while the instan
 ---
 
 ## ✅ **1. System Global Area (SGA)**
-
+```text
++-------------------------------------------------------+
+|                      SGA (System Global Area)          |
+|          (Shared Memory Area for Oracle Instance)      |
++---------------------+-----------------+----------------+
+| Shared Pool         | Database Buffer Cache | Redo Log Buffer |
+|                     |                     |                |
+| +----------------+  | +----------------+  | +------------+ |
+| | Library Cache  |  | | Data Blocks    |  | | Redo Info  | |
+| | (SQL, PL/SQL) |  | | (Cached Data)  |  | | (Changes)  | |
+| +----------------+  | +----------------+  | +------------+ |
+| +----------------+  |                     |                |
+| | Data Dictionary|  |                     |                |
+| | Cache         |  |                     |                |
+| +----------------+  |                     |                |
++---------------------+---------------------+----------------+
+```
 📘 **Definition**:
 *The System Global Area (SGA) is a shared memory region that contains data and control information for one Oracle database instance. It is used by all server and background processes.*
 
@@ -983,9 +999,9 @@ These are **memory structures and processes** that exist only **while the instan
 * Can use **Automatic Shared Memory Management (ASMM)**
 * Shared across all connected sessions
 
-🧠 **Key Components**:
+🧠 **Components**:
 
-### 🔷 **a. Database Buffer Cache**
+#### 🔷 **(1). Database Buffer Cache**
 
 * Stores copies of data blocks read from datafiles
 * Helps avoid frequent disk I/O by reusing data in memory
@@ -998,7 +1014,7 @@ These are **memory structures and processes** that exist only **while the instan
 
 ---
 
-### 🔷 **b. Shared Pool**
+#### 🔷 **(2). Shared Pool**
 
 * Caches **SQL statements**, **PL/SQL procedures**, and **data dictionary** information
 * Reduces parsing overhead and improves response time
@@ -1025,9 +1041,7 @@ These are **memory structures and processes** that exist only **while the instan
 
   * **SQL not shared** due to literals instead of bind variables
   * **ORA-04031** if cache space is exhausted
-
----
-
+    
 #### 🗂 Data Dictionary Cache (Row Cache)
 
 * **Purpose**: Caches **object metadata** and privileges.
@@ -1046,7 +1060,7 @@ These are **memory structures and processes** that exist only **while the instan
 
 ---
 
-### 🔷 **c. Redo Log Buffer**
+#### 🔷 **(3). Redo Log Buffer**
 
 * Temporarily holds **redo entries** (change vectors) before they’re written to **online redo logs**
 * Written by the **LGWR** process during:
@@ -1058,10 +1072,8 @@ These are **memory structures and processes** that exist only **while the instan
 📎 V\$ Views:
 
 * `V$LOG`, `V$LOGFILE`, `V$LOG_HISTORY`
-
 ---
-
-### 🔷 **d. Large Pool**
+#### 🔷 **(4). Large Pool**
 
 * Optional component used for:
 
@@ -1074,7 +1086,7 @@ These are **memory structures and processes** that exist only **while the instan
 
 ---
 
-### 🔷 **e. Java Pool**
+#### 🔷 **(5). Java Pool**
 
 * Memory area used for **Java execution**, especially when running Java stored procedures or EJBs inside the DB
 
@@ -1082,7 +1094,7 @@ These are **memory structures and processes** that exist only **while the instan
 
 ---
 
-### 🔷 **f. Streams Pool**
+#### 🔷 **(6). Streams Pool**
 
 * Used by **Oracle Streams**, **Advanced Queuing**, and **GoldenGate**
 * Stores queued messages, staging areas, etc.
