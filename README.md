@@ -1044,8 +1044,6 @@ WHERE name IN ('total PGA allocated', 'maximum PGA allocated');
 
 📎 **Key Views**: `V$DBFILE`, `V$BUFFER_POOL_STATISTICS`, `V$SYSSTAT`
 
-Great request! Let's expand the **DBWR (Database Writer)** section by adding **buffer types**, **LRU (Least Recently Used) mechanism**, and related **internal memory management logic** — all of which are crucial for a deep understanding of how Oracle handles memory and disk I/O.
-
 ---
 
 ### ✅ **Types of Buffers in Buffer Cache**
@@ -1095,15 +1093,12 @@ Oracle uses an **LRU (Least Recently Used) replacement algorithm** to manage buf
 | **Tablespace/datafile offline/drop**        | Writes related buffers to disk                    |
 | **Database shutdown**                       | Ensures all data is persistent                    |
 
----
-
 ### 🧰 **Performance Considerations**
 
 * **Too many dirty buffers** → Increased pressure on DBWR.
 * **Frequent writes** → Higher I/O, but better consistency during recovery.
 * **Buffer busy waits** → Happens when no free/pinned buffer is available (DBWR lagging behind).
 
----
 
 ### 📎 **Relevant Views for Monitoring**:
 
