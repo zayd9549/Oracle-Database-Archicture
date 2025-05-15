@@ -668,6 +668,31 @@ ORDER BY sequence#;
 ```sql
 DELETE ARCHIVELOG ALL COMPLETED BEFORE 'SYSDATE-7';
 ```
+### 🗂️ **Archived Redo Log – Logical Relationship Diagram**
+
+```text
++---------------------+
+|   Redo Log Buffer   |
++----------+----------+
+           |
+           v
++---------------------+
+|    Redo Log Files   |
+|  (Online Redo Logs) |
++----------+----------+
+           |
+           v
++----------------------+
+|  Archive Log Writer  |
+|     (ARCn Process)   |
++----------+-----------+
+           |
+           v
++------------------------+
+|   Archive Log Files    |
+|  (Archived Redo Logs)  |
++------------------------+
+````
 ---
 
 ## ✅ **6. Parameter Files (PFILE / SPFILE)**
