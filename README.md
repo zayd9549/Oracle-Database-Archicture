@@ -527,6 +527,35 @@ SELECT group#, sequence#, status, archived FROM v$log;
 ```sql
 SELECT name FROM v$controlfile;
 ```
+### 📊 **Control File – Logical Relationship Diagram**
+
+```text
+                      +---------------------------+
+                      |       Oracle Database     |
+                      +---------------------------+
+                                  |
+                                  v
+                      +---------------------------+
+                      |        Control File        |
+                      |      (control01.ctl)       |
+                      +---------------------------+
+                                  |
+     +----------------------------+----------------------------+
+     |                            |                            |
+     v                            v                            v
++--------------+        +-----------------+         +-------------------+
+| DB Metadata  |        |  Redo Log Info  |         |  Datafile Info    |
+| (DB Name, ID)|        | (Log history,   |         |  (File names &    |
+| SCN, Checkpt)|        |  log sequence)  |         |   locations)      |
++--------------+        +-----------------+         +-------------------+
+
+                                  |
+                                  v
+                      +---------------------------+
+                      |  RMAN Backup Information  |
+                      | (Archived logs, snapshots)|
+                      +---------------------------+
+```
 ---
 
 ## ✅ **4. Tempfiles**
@@ -568,6 +597,25 @@ SELECT name FROM v$controlfile;
 ```sql
 SELECT file_name, tablespace_name, bytes/1024/1024 AS size_mb
 FROM dba_temp_files;
+```
+### 🗂️ Tempfile – Logical Relationship Diagram
+
+```text
++-------------------------+
+|     SQL Operations     |
+| (Sort, Join, Bitmap...)|
++-----------+-------------+
+            |
+            v
++-------------------------+
+|     TEMP Tablespace     |
++-----------+-------------+
+            |
+            v
++-------------------------+
+|        Tempfile         |
+|     (temp01.dbf)        |
++-------------------------+
 ```
 ---
 
