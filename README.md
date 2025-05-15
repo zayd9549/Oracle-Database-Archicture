@@ -1757,7 +1757,8 @@ It acts **only after a redo log fills up**, safely storing the log’s contents 
 
 ---
 
-## **Multitenant Architecture (CDB and PDB)**
+## 🏗️ Multitenant Architecture (CDB and PDB)
+
 
 *(Introduced in Oracle 12c — a major shift in Oracle Database architecture)*
 
