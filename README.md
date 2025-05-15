@@ -752,29 +752,20 @@ WHERE name LIKE 'sga%';
 📘 **Definition**:
 *A password file is a separate operating system-level file that stores authentication credentials for Oracle users who need to perform administrative tasks remotely (like SYSDBA). It enables privileged connections without OS authentication.*
 
-📊 **Purpose / Usage**:
+⚙️ **Purpose:**
+- Stores encrypted passwords for privileged users (SYS, SYSDBA)
+- Allows remote and administrative authentication
 
-* Enable **remote** SYSDBA/SYSOPER access using `sqlplus sys as sysdba`
-* Allow **non-OS users** to perform administrative tasks
-* Used during **RMAN**, **Data Guard**, **startup/shutdown**, and **Oracle Net** connections
+🛠️ **Characteristics:**
+- Binary file, manually created or updated using `orapwd` utility
+- Required for certain privileged connections (SYSDBA, SYSOPER)
+- Location typically: `$ORACLE_HOME/dbs/orapw<SID>`
 
+📎 **Creation Example:**
+```bash
+orapwd file=$ORACLE_HOME/dbs/orapw<SID> password=your_password entries=10
+````
 🛠️ **Managed By**: `orapwd` utility
-
-⚙️ **Characteristics**:
-
-* Stored under `$ORACLE_HOME/dbs` or ASM
-* Can be **shared** across RAC nodes (in ASM or on shared file system)
-* Contains entries for users with `SYSDBA`, `SYSOPER`, `SYSBACKUP`, etc.
-* Case-sensitive (if `PASSWORD_CASE_SENSITIVE=TRUE`)
-* Can be used in **EXCLUSIVE** or **SHARED** mode
-
-🧪 **Examples**:
-
-* `orapwORCL`
-
-📎 **Extension**:
-
-* No fixed extension (typically `orapw<SID>`)
 
 🔍 **V\$ Views**:
 
@@ -792,6 +783,38 @@ FROM v$pwfile_users;
 * Restrict access to the password file to avoid unauthorized privilege escalation
 * Use **ORAPWD** tool to manage changes
 * Periodically review users with high privileges
+
+### 🔐 **Oracle Password File – Logical Relationship Diagram**
+
+```text
++----------------------------+
+|       Database Startup     |
++-------------+--------------+
+              |
+              v
++----------------------------+
+|   Password File Check      |
+|  (Located in $ORACLE_HOME) |
++-------------+--------------+
+              |
+       +------+------+
+       |             |
+       v             v
++-----------+   +-----------------+
+|  Password |   | Authentication  |
+|  File     |   |     Module      |
+|  (orapw<sid>)|                 |
++-----------+   +-----------------+
+       |               |
+       +-------+-------+
+               |
+               v
++----------------------------+
+|  User Authentication /     |
+|  SYSDBA Privilege Check    |
++----------------------------+
+
+```
 ---
 
 ## ✅ **8. Alert Log**
@@ -812,15 +835,13 @@ FROM v$pwfile_users;
 * Plain text file, **continuously appended**
 * Located under `alert_<SID>.log`
 * Found in:
-
-  * Non-ADR: `$ORACLE_BASE/admin/<db_name>/bdump`
   * ADR-enabled: `$ORACLE_BASE/diag/rdbms/<db_name>/<SID>/trace/`
+
 * Used heavily in **OEM alerts**, **monitoring**, and **custom scripts**
 
 🧪 **Examples**:
 
 * `alert_ORCL.log`
-* `alert_PRODDB.log`
 
 📎 **Extension**: `.log`
 
@@ -831,15 +852,50 @@ SELECT value
 FROM v$diag_info 
 WHERE name = 'Diag Trace';
 ```
-
-Then navigate to `alert_<SID>.log` in that path.
+📎 **Access Example:**
+- Using OS commands like `tail -f alert_<SID>.log` to monitor real-time logs
+- Oracle ADR commands (`adrci`) to view and manage logs in newer Oracle versions
 
 🧠 **Best Practice**:
 
 * Regularly **monitor and archive** alert logs
-* Integrate with tools like **OEM**, **Nagios**, or **Prometheus**
+* Integrate with tools like **OEM**
 * Watch for frequent ORA-xxxx or repetitive messages indicating deeper issues
+y to manage size
 
+### 📢 **Oracle Alert Log – Logical Relationship Diagram**
+
+```text
++----------------------------+
+|       Database Instance     |
++-------------+--------------+
+              |
+              v
++----------------------------+
+|       Alert Log File       |
+|  (alert_<SID>.log file)    |
++-------------+--------------+
+              |
+              v
++----------------------------+
+|    Event Logging & Status  |
+|       Information          |
++-------------+--------------+
+              |
+       +------+------+
+       |             |
+       v             v
++-----------+   +-----------------+
+|  Errors   |   |  Warnings       |
+|  Messages |   |  Messages       |
++-----------+   +-----------------+
+       |
+       v
++----------------------------+
+|  Performance & Health      |
+|   Diagnostics              |
++----------------------------+
+```
 ---
 
 ## ✅ **9. Trace Files**
