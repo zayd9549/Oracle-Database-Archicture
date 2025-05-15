@@ -339,7 +339,7 @@ Oracle offers **different editions** for different use cases and budgets.
 
 ---
 
-## 🔷 **Oracle Database Server Architecture**
+## 📘 **Oracle Database Server Architecture**
 
 ---
 
