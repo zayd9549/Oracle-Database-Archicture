@@ -1124,18 +1124,39 @@ FROM v$sga;
 📘 **Definition**:
 *PGA is a non-shared memory region containing data and control information for a server process. Each user gets their own PGA, and it is not accessible by others.*
 
-📊 **Purpose / Usage**:
+### 🧠 PGA (Program Global Area) – Logical Structure Diagram
 
-* Manage **session-specific operations** like sorting, joins, and buffers
-* Support **session memory**, **private SQL areas**, **work areas**
+```text
++-----------------------------------------------------+
+|           PGA (Program Global Area) - Per Process   |
+|   Private memory region used by a dedicated process |
++------------------------+----------------------------+
+| Sort Area              | Session Memory             |
+| +-------------------+  | +------------------------+ |
+| | ORDER BY, GROUP BY|  | | Login, Cursor states   | |
+| | Hash Joins, etc.  |  | | Bind variables         | |
+| +-------------------+  | +------------------------+ |
+| Work Area              | Stack Space                |
+| +-------------------+  | +------------------------+ |
+| | Hash joins, etc.  |  | | Call stack, recursion  | |
+| +-------------------+  | +------------------------+ |
++------------------------+----------------------------+
+````
 
-🧠 **Includes**:
+### ⚙️ **What is PGA?**
 
-* **Sort area**
-* **Session memory**
-* **Hash join area**
-* **Bitmap merge area**
-* **Cursor state info**
+* A **non-shared memory region** allocated **per server process**
+* Stores data and control information **specific to that process**
+* Managed automatically when `PGA_AGGREGATE_TARGET` is set
+
+### 📦 **Main Components:**
+
+| Component          | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| **Sort Area**      | Used for operations like `ORDER BY`, `GROUP BY`, and joins when in-memory |
+| **Session Memory** | Holds session variables, cursor state, login info                         |
+| **Work Area**      | Temporary workspace for operations like bitmap merge, hash join           |
+| **Stack Space**    | Stores function call info, recursion, and other process-specific data     |
 
 ⚙️ **Characteristics**:
 
@@ -1143,23 +1164,31 @@ FROM v$sga;
 * Controlled via `PGA_AGGREGATE_TARGET` or `PGA_AGGREGATE_LIMIT`
 * Used heavily by **OLAP** and **parallel query** operations
 
-🔍 **Query Example**:
+### 🧠 **Key Differences from SGA:**
+
+| Feature       | PGA                    | SGA                          |
+| ------------- | ---------------------- | ---------------------------- |
+| Memory Scope  | Private per process    | Shared across instance       |
+| Managed by    | Oracle (automatic)     | Oracle or manually           |
+| Typical Use   | Sorts, joins, session  | Caching, parsing, redo       |
+| Controlled by | `PGA_AGGREGATE_TARGET` | `SGA_TARGET`, `SGA_MAX_SIZE` |
+
+### 📊 **Monitoring Views:**
+
+* `V$PGASTAT` – PGA memory usage stats
+* `V$PROCESS` – Memory usage per process
+* `V$SESSTAT` – Per-session statistics related to PGA
+
+### 📎 **Query Examples:**
 
 ```sql
-SELECT name, round(value/1024/1024, 2) AS size_mb 
-FROM v$pgastat 
-WHERE name IN ('total PGA allocated', 'maximum PGA allocated');
+-- Get PGA statistics
+SELECT * FROM V$PGASTAT;
+
+-- PGA used by sessions
+SELECT s.sid, pga_used_mem, pga_alloc_mem, pga_freeable_mem, pga_max_mem
+FROM v$process p JOIN v$session s ON p.addr = s.paddr;
 ```
-
----
-
-📎 **View-level Summary**:
-
-* `V$SGA`: Total shared memory usage
-* `V$PGASTAT`: Runtime stats for PGA usage
-* `V$PROCESS_MEMORY`: Memory by process
-* `V$MEMORY_TARGET_ADVICE`: Recommendations
-
 ---
 
 ## ✅ **Oracle Background Processes**
