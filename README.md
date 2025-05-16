@@ -2012,10 +2012,7 @@ It is Oracle’s way of:
 * Simplified **Dev/Test/Prod** environments
 * **Database-as-a-Service (DBaaS)** models
 * **Multi-tenant SaaS** platforms (1 PDB per client)
-* 
 
----
-Here is a **clear, detailed explanation of "Server Process vs. User Process"** — suitable for teaching and for PowerPoint presentation (dark mode friendly):
 
 ---
 
