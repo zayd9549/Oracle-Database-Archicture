@@ -1684,11 +1684,6 @@ It guarantees **consistency** and helps minimize **recovery time** in case of fa
 * More redo entries to process.
 * Higher chance of data inconsistencies in memory vs disk.
 
-
----
-
-Here is a deep-dive explanation of:
-
 ---
 
 ## 🔹 **6. RECO (Recoverer Process)**
